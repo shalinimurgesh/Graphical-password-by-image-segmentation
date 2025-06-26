@@ -1,1 +1,1 @@
-# Graphical-password-by-image-segmentation
+# Graphical-password-by-image-segmentatio
