@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Graphical Password</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 400px;
+    }
+    h2 {
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    input[type="text"], input[type="email"], input[type="password"], input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+    }
+    .image-selection img {
+      width: 60px;
+      height: 60px;
+      margin: 5px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 5px;
+    }
+    .image-selection img.selected {
+      border-color: green;
+    }
+    .grid-container {
+      position: relative;
+      width: 240px;
+      height: 240px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      grid-gap: 5px;
+      margin-top: 10px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .grid-item {
+      background: rgba(255,255,255,0.5);
+      border-radius: 5px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+    }
+    .grid-item.selected {
+      background: rgba(0, 128, 0, 0.5);
+    }
+    .status {
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    .submit-btn:disabled {
+      background: gray;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Login to Your Account</h2>
+    <form action="login.php" method="POST" id="login-form">
+      <div class="form-group">
+        <label for="username">User ID:</label>
+        <input type="text" id="username" name="username" required>
+        <div id="username-status" class="status"></div>
+      </div>
+      <div class="form-group">
+        <label for="email">Email (Gmail):</label>
+        <input type="email" id="email" name="email" required>
+        <div id="email-status" class="status"></div>
+      </div>
+      <div class="form-group image-selection">
+        <label>Select Image:</label><br>
+        <img src="images/img1.jpeg" onclick="selectImage(this)">
+        <img src="images/img2.jpeg" onclick="selectImage(this)">
+        <img src="images/img3.jpeg" onclick="selectImage(this)">
+        <img src="images/img4.jpeg" onclick="selectImage(this)">
+        <img src="images/img5.jpeg" onclick="selectImage(this)">
+      </div>
+
+      <div class="form-group">
+        <label>Select Graphical Password:</label>
+        <div id="login-grid" class="grid-container"></div>
+      </div>
+
+      <input type="hidden" name="selected_image" id="selected_image">
+      <input type="hidden" name="password_sequence" id="password_sequence">
+
+      <input type="submit" value="Login" class="submit-btn" id="submit-btn" disabled>
+      <div class="status">
+        Don't have an account? <a href="register.html">Register here</a><br>
+        <a href="forgot_password.html">Forgot Password?</a>
+      </div>
+      <div id="password-error" class="status"></div>
+    </form>
+  </div>
+
+  <script>
+    let selectedImageSrc = "";
+    let selectedPassword = [];
+
+    const form = document.getElementById('login-form');
+    const submitButton = document.getElementById('submit-btn');
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const usernameStatus = document.getElementById('username-status');
+    const emailStatus = document.getElementById('email-status');
+    const passwordError = document.getElementById('password-error');
+
+    function selectImage(img) {
+      const imgs = document.querySelectorAll('.image-selection img');
+      imgs.forEach(i => i.classList.remove('selected'));
+      img.classList.add('selected');
+      selectedImageSrc = img.getAttribute('src');
+      document.getElementById('selected_image').value = selectedImageSrc;
+      generateGrid();
+      checkFormValidity();
+    }
+
+    function generateGrid() {
+      const grid = document.getElementById('login-grid');
+      grid.innerHTML = '';
+      grid.style.backgroundImage = `url('${selectedImageSrc}')`;
+      for (let i = 0; i < 16; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('grid-item');
+        cell.dataset.index = i + 1;
+        cell.addEventListener('click', () => toggleSelection(cell));
+        grid.appendChild(cell);
+      }
+    }
+
+    function toggleSelection(cell) {
+      const idx = parseInt(cell.dataset.index);
+      if (!selectedPassword.includes(idx)) {
+        selectedPassword.push(idx);
+        cell.classList.add('selected');
+      } else {
+        selectedPassword = selectedPassword.filter(item => item !== idx);
+        cell.classList.remove('selected');
+      }
+      document.getElementById('password_sequence').value = selectedPassword.join(',');
+      checkFormValidity();
+    }
+
+    function checkFormValidity() {
+      const username = usernameInput.value;
+      const email = emailInput.value;
+      const image = document.getElementById('selected_image').value;
+      const sequence = document.getElementById('password_sequence').value;
+
+      if (username && email && image && sequence) {
+        submitButton.disabled = false;
+      } else {
+        submitButton.disabled = true;
+      }
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();  // Stop normal form submission
+
+      const userid = usernameInput.value;
+      const email = emailInput.value;
+      const selectedImage = document.getElementById('selected_image').value;
+      const passwordSequence = document.getElementById('password_sequence').value;
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "login.php", true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          if (response.valid) {
+            window.location.href = 'college.html';
+          } else {
+            passwordError.textContent = "Invalid password. Retry it again.";
+          }
+        }
+      };
+      xhr.send(`username=${encodeURIComponent(userid)}&email=${encodeURIComponent(email)}&selected_image=${encodeURIComponent(selectedImage)}&password_sequence=${encodeURIComponent(passwordSequence)}`);
+    });
+
+    usernameInput.addEventListener('input', checkFormValidity);
+    emailInput.addEventListener('input', checkFormValidity);
+  </script>
+</body>
+</html>

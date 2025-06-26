@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Graphical Password Registration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 400px;
+    }
+    h2 {
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    input[type="text"], input[type="email"], input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+    }
+    .image-selection img {
+      width: 60px;
+      height: 60px;
+      margin: 5px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 5px;
+    }
+    .image-selection img.selected {
+      border-color: green;
+    }
+    .grid-container {
+      position: relative;
+      width: 240px;
+      height: 240px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      grid-gap: 5px;
+      margin-top: 10px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .grid-item {
+      background: rgba(255,255,255,0.5);
+      border-radius: 5px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+    }
+    .grid-item.selected {
+      background: rgba(0, 128, 0, 0.5);
+    }
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    button, input[type="submit"] {
+      background: #4CAF50;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 45%;
+    }
+    .submit-btn:disabled {
+      background: gray;
+    }
+    .status {
+      font-size: 12px;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <h2>Create Your Account</h2>
+
+  <form action="register.php" method="POST" onsubmit="return validateForm();">
+    <!-- Step 1 -->
+    <div class="step active" id="step1">
+      <div class="form-group">
+        <label>Username:</label>
+        <input type="text" name="userid" id="userid" onkeyup="checkUsername(this.value)" required>
+        <div id="userid-status" class="status"></div>
+      </div>
+      <div class="form-group">
+        <label>Email (Gmail):</label>
+        <input type="email" name="email" id="email" onkeyup="checkGmail(this.value)" required>
+        <div id="email-status" class="status"></div>
+      </div>
+      <div class="buttons">
+        <button type="button" onclick="history.back();">Back</button>
+        <button type="button" onclick="nextStep(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step" id="step2" style="display: none;">
+      <div class="form-group image-selection">
+        <label>Select Image:</label><br>
+        <img src="images/img1.jpeg" onclick="selectImage(this)">
+        <img src="images/img2.jpeg" onclick="selectImage(this)">
+        <img src="images/img3.jpeg" onclick="selectImage(this)">
+        <img src="images/img4.jpeg" onclick="selectImage(this)">
+        <img src="images/img5.jpeg" onclick="selectImage(this)">
+      </div>
+
+      <div class="buttons">
+        <button type="button" onclick="history.back();">Back</button>
+        <button type="button" onclick="nextStep(2)">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step" id="step3" style="display: none;">
+      <div class="form-group">
+        <label>Select Graphical Password:</label>
+        <div id="password-grid" class="grid-container"></div>
+      </div>
+      <div class="form-group">
+        <label>Confirm Graphical Password:</label>
+        <div id="confirm-password-grid" class="grid-container"></div>
+      </div>
+      <div id="match-status" class="status"></div>
+
+      <input type="hidden" name="selected_image" id="selected_image">
+      <input type="hidden" name="password_segments" id="password_segments">
+      <input type="hidden" name="confirm_password_segments" id="confirm_password_segments">
+
+      <div class="buttons">
+        <button type="button" onclick="history.back();">Back</button>
+        <input type="submit" value="Register" class="submit-btn" disabled>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+let usernameValid = false;
+let gmailValid = false;
+let passwordsMatch = false;
+let imageSelected = false;
+let selectedImageSrc = "";
+
+function checkUsername(value) {
+  if (value.length < 3) {
+    document.getElementById('userid-status').textContent = '';
+    usernameValid = false;
+    updateSubmitButton();
+    return;
+  }
+  fetch('check_username.php?userid=' + value)
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('userid-status').textContent = data;
+      usernameValid = data.includes("available");
+      updateSubmitButton();
+    });
+}
+
+function checkGmail(value) {
+  if (value.length < 5) {
+    document.getElementById('email-status').textContent = '';
+    gmailValid = false;
+    updateSubmitButton();
+    return;
+  }
+  fetch('check_gmail.php?email=' + value)
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('email-status').textContent = data;
+      gmailValid = data.includes("allowed");
+      updateSubmitButton();
+    });
+}
+
+function selectImage(img) {
+  const imgs = document.querySelectorAll('.image-selection img');
+  imgs.forEach(i => i.classList.remove('selected'));
+  img.classList.add('selected');
+  selectedImageSrc = img.getAttribute('src');
+  document.getElementById('selected_image').value = selectedImageSrc;
+  imageSelected = true;
+
+  generateGrids();
+  updateSubmitButton();
+}
+
+function generateGrids() {
+  createGrid('password-grid', selectedPassword, 'password_segments');
+  createGrid('confirm-password-grid', selectedConfirmPassword, 'confirm_password_segments');
+}
+
+function createGrid(gridId, selectedArray, hiddenInputId) {
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = '';
+  grid.style.backgroundImage = `url('${selectedImageSrc}')`;
+
+  for (let i = 0; i < 16; i++) {
+    const cell = document.createElement('div');
+    cell.classList.add('grid-item');
+    cell.dataset.index = i + 1;
+    cell.addEventListener('click', () => toggleSelection(cell, selectedArray, hiddenInputId));
+    grid.appendChild(cell);
+  }
+}
+
+let selectedPassword = [];
+let selectedConfirmPassword = [];
+
+function toggleSelection(cell, selectedArray, hiddenInputId) {
+  const idx = parseInt(cell.dataset.index);
+  const index = selectedArray.indexOf(idx);
+  
+  if (index === -1) {
+    // Add the grid index to the array
+    selectedArray.push(idx);
+    cell.classList.add('selected');
+  } else {
+    // Remove the grid index from the array
+    selectedArray.splice(index, 1);
+    cell.classList.remove('selected');
+  }
+  
+  document.getElementById(hiddenInputId).value = selectedArray.join(',');
+  comparePasswords();
+}
+
+function comparePasswords() {
+  const password = document.getElementById('password_segments').value;
+  const confirmPassword = document.getElementById('confirm_password_segments').value;
+  const matchStatus = document.getElementById('match-status');
+
+  if (password === confirmPassword && password.length > 0) {
+    matchStatus.textContent = "Passwords match ✅";
+    matchStatus.style.color = "green";
+    passwordsMatch = true;
+  } else {
+    matchStatus.textContent = "Passwords do not match ❌";
+    matchStatus.style.color = "red";
+    passwordsMatch = false;
+  }
+  updateSubmitButton();
+}
+
+function nextStep(stepNumber) {
+  const steps = document.querySelectorAll('.step');
+  steps.forEach(step => step.style.display = 'none');
+  document.getElementById('step' + (stepNumber + 1)).style.display = 'block';
+}
+
+function updateSubmitButton() {
+  const submitBtn = document.querySelector('.submit-btn');
+  submitBtn.disabled = !(usernameValid && gmailValid && passwordsMatch && imageSelected);
+}
+
+function validateForm() {
+  if (!passwordsMatch) {
+    alert('Password and Confirm Password do not match.');
+    return false;
+  }
+  if (!imageSelected) {
+    alert('Please select an image.');
+    return false;
+  }
+  return true;
+}
+</script>
+</body>
+</html>

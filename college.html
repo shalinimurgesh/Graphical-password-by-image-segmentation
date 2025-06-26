@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XYZ College</title>
+  <link rel="stylesheet" href="college.css">
+</head>
+<body>
+
+  <!-- Header Section -->
+  <header>
+    <div class="logo">
+      <img src="logo.jpeg" alt="College Logo" />
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#about-us">About Us</a></li>
+        <li><a href="#courses">Courses</a></li>
+        <li><a href="#faculty">Faculty</a></li>
+        <li><a href="#admissions">Admissions</a></li>
+        <li><a href="#events">Events</a></li>
+        <li><a href="#contact-us">Contact Us</a></li>
+      </ul>
+    </nav>
+    <!-- Link to Login Page -->
+    <a href="login.html" class="cta-button">Logout</a>
+  </header>
+
+  <!-- Main Banner Section -->
+  <section class="main-banner">
+    <div class="slider">
+      <div class="slide">
+        <div class="banner-text">
+          <h1>Welcome to Alva' s Degree College</h1>
+          <p>Your journey to success begins here!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Us Section -->
+  <section id="about-us" class="section-content">
+    <h2>About Us</h2>
+    <p>Alva’s College, Moodubidire, a highly sought-after center for higher education in the Indian state of Kamataka, nestles snugly on a grassy knoll overlooking a verdant landscape that brims with breathtaking scenic beauty. Armed with the vision of moulding a better tomorrow for the young brains through educational, cultural and sporting excellence, the college has been rendering yeoman service to society for more than two and a half decades. The institution, which is managed by Alva’s Education Foundation® (AEF), a brainchild of the visionary educationist, Dr. M. Mohan Alva, came into existence in 1998 with just two programmes having hardly twenty-five students. Over the years, Alva’s College has scaled dizzy heights spreading its name and fame at the international level attracting students not just from all over India but from different parts of the globe as well.</p>
+<br><h2>Vision</h2><br><p>Moulding better tomorrow through educational, cultural and sports excellence.</p>
+  </section>
+
+  <!-- Courses Section -->
+  <section id="courses" class="section-content">
+    <h2>Featured Courses</h2>
+    <div class="course">
+      <h3>Computer Science</h3>
+      <p>Explore the latest trends in tech and software development.</p>
+      <ul><li>B.C.A. – Bachelor of Computer Application</li>
+<li>B.Sc. – Microbiology, Chemistry, Zoology</li>
+<li>B.Sc. – Microbiology, Bio-Chemistry, Botany</li>
+<li>B.Sc. – Biotechnology, Chemistry, Botany</li>
+<li>B.Sc. – Biotechnology, Chemistry, Zoology</li>
+<li>B.Sc. – Botany, Zoology, Chemistry</li>
+<li>B.Sc. – Physics, Mathematics, Computer Science
+</li></ul>
+    </div>
+    <div class="course">
+      <h3>Arts</h3>
+      <p>Build the future with innovative engineering solutions.</p>
+    </div>
+  </section>
+
+  <!-- Events Section -->
+  <section id="events" class="section-content">
+    <h2>Upcoming Events</h2>
+    <ul>
+      <li><span>June 20, 2025</span> - Annual Sports Meet</li>
+      <li><span>July 10, 2025</span> - College Fest</li>
+      <li><span>August 15, 2025</span> - Admission Open Day</li>
+    </ul>
+  </section>
+
+  <!-- Footer Section -->
+  <footer>
+    <div class="contact-info">
+      <p>Alva's Degree College</p>
+      <p>Vidyagiri, Moodubidire, Dakshina Kannada – 574227, Karnataka, India.</p>
+      <p>Email: admission@alvascollege.org<br>
+           principal@alvascollege.org</p>
+      <p>Phone: <br>Contact Office : +91 8197617333<br>
+Principal : +91 8147760394<br>
+Admission Officer : +91 8884455526</p>
+    </div>
+    <div class="social-media">
+      <a href="https://facebook.com" target="_blank">Facebook</a>
+      <a href="https://twitter.com" target="_blank">Twitter</a>
+      <a href="https://instagram.com" target="_blank">Instagram</a>
+      <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+    </div>
+  </footer>
+
+  <script>
+    document.querySelectorAll("nav a").forEach(link => {
+      link.addEventListener("click", function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute("href");
+        showSection(targetId);
+      });
+    });
+
+    function showSection(sectionId) {
+      // Hide all sections
+      const sections = document.querySelectorAll('.section-content');
+      sections.forEach(section => {
+        section.style.display = "none";
+      });
+
+      // Show the clicked section
+      const targetSection = document.querySelector(sectionId);
+      if (targetSection) {
+        targetSection.style.display = "block";
+      }
+    }
+
+    // Initially show the about us section
+    document.addEventListener('DOMContentLoaded', function () {
+      showSection('#about-us');
+    });
+  </script>
+
+</body>
+</html>
